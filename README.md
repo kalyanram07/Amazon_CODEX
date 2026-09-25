@@ -235,29 +235,5 @@ You submit predictions for the full test set in both cases; the split is applied
 
    A template for this documentation is provided in `Documentation_template.md`. There is no page limit — prioritise clarity and technical depth over brevity.
 
-### **Academic Integrity and Fair Play:**
-
-**⚠️ STRICTLY PROHIBITED: External Data Lookup**
-
-Participants are **STRICTLY NOT ALLOWED** to use external databases, APIs, or services to look up business identities or resolve entities. This includes but is not limited to:
-
-- Using commercial entity resolution APIs or services
-- Looking up business registrations from government databases
-- Using geocoding APIs to normalize addresses
-- Any external data augmentation from internet sources
-
-**Enforcement:**
-
-- All submitted approaches, methodologies, and code pipelines will be thoroughly reviewed and verified
-- Any evidence of external data lookup will result in **immediate disqualification**
-
-**Fair Play:** This challenge is designed to test your machine learning and data science skills using only the provided training data.
-
-### Tips for Success:
-
-- Invest in a strong blocking/candidate generation strategy — it determines the upper bound of your recall
-- Explore string similarity features (Jaccard, Levenshtein, TF-IDF cosine) for name and address matching
-- Pay attention to country specific address patterns
-- Consider the precision-recall trade-off carefully — F_0.5 rewards precision more than recall
-- Do not neglect singletons — correctly predicting "no match" is worth a full 1.0 on that entity
+etons — correctly predicting "no match" is worth a full 1.0 on that entity
 - Validate your own output format against the rules above before submitting
