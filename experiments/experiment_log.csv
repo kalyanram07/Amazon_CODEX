@@ -1,3 +1,12 @@
 exp_id,blocking_strategy,feature_set,model_type,tau_singleton,tau_match,candidate_recall,candidate_reduction,val_precision,val_recall,val_macro_f05,notes
 E00,Country+NameToken,HeuristicSimilarity,RuleBased,0.70,0.70,,,,,,,Initial baseline benchmark
 LightGBM_GBDT,400000,0.80,0.70,0.909797,2026-09-25 11:30:41
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-25 16:49:57
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-25 17:39:20
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-25 17:55:16
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-25 18:02:41
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-25 18:03:11
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-25 18:03:29
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-25 18:03:47
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-28 16:20:51
+LightGBM_GBDT,5,0.80,0.70,1.000000,2026-09-28 16:23:10

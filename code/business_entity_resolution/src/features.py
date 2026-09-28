@@ -3,7 +3,7 @@ High-Performance Pairwise Feature Extraction Engine for Amazon ML Challenge 2026
 Uses RapidFuzz (C++ accelerated) and token/digit overlap metrics for candidate scoring.
 """
 
-from typing import Dict, List, Set, Tuple, Any
+from typing import Dict, List, Set, Tuple, Any, Optional
 import numpy as np
 from rapidfuzz import fuzz
 
@@ -161,8 +161,159 @@ def extract_pair_features(s1: Dict[str, Any], cand: Dict[str, Any]) -> List[floa
 class PairFeatureExtractor:
     """Wrapper class for feature extraction with schema preservation."""
 
-    def __init__(self):
-        self.feature_names = list(FEATURE_COLUMNS)
+    def __init__(self, use_expanded: bool = False):
+        self.use_expanded = use_expanded
+        self.feature_names = list(EXPANDED_FEATURE_COLUMNS if use_expanded else FEATURE_COLUMNS)
 
-    def extract_pair_features(self, s1: Dict[str, Any], cand: Dict[str, Any]) -> List[float]:
+    def extract_pair_features(
+        self,
+        s1: Dict[str, Any],
+        cand: Dict[str, Any],
+        blocker_score: float = 0.0,
+        blocker_rank: int = 1,
+        name_idf_dict: Optional[Dict[str, float]] = None,
+    ) -> List[float]:
+        if self.use_expanded:
+            return extract_expanded_pair_features(
+                s1, cand, blocker_score=blocker_score, blocker_rank=blocker_rank, name_idf_dict=name_idf_dict
+            )
         return extract_pair_features(s1, cand)
+
+
+from rapidfuzz.distance import JaroWinkler
+
+
+def char_ngram_cosine(s1: str, s2: str, n: int = 3) -> float:
+    """Computes character n-gram cosine similarity."""
+    clean1 = "".join([c for c in s1.lower() if c.isalnum()])
+    clean2 = "".join([c for c in s2.lower() if c.isalnum()])
+    if not clean1 and not clean2:
+        return 1.0
+    if not clean1 or not clean2 or len(clean1) < n or len(clean2) < n:
+        return 1.0 if clean1 == clean2 else 0.0
+    
+    ng1 = [clean1[i:i+n] for i in range(len(clean1) - n + 1)]
+    ng2 = [clean2[i:i+n] for i in range(len(clean2) - n + 1)]
+    set1, set2 = set(ng1), set(ng2)
+    inter = len(set1.intersection(set2))
+    denom = (len(set1) * len(set2)) ** 0.5
+    return inter / denom if denom > 0 else 0.0
+
+
+EXPANDED_FEATURE_COLUMNS = list(FEATURE_COLUMNS) + [
+    "name_jaro_winkler",
+    "name_char3_cosine",
+    "name_char4_cosine",
+    "name_prefix3_match",
+    "name_prefix5_match",
+    "name_prefix8_match",
+    "name_contain_s1_in_s2",
+    "name_contain_s2_in_s1",
+    "addr_contain_s1_in_s2",
+    "addr_contain_s2_in_s1",
+    "exact_postal_match",
+    "leading_house_number_match",
+    "high_name_high_addr",
+    "high_name_low_addr",
+    "low_name_high_addr",
+    "low_name_low_addr",
+    "candidate_score",
+    "candidate_rank",
+]
+
+
+def extract_expanded_pair_features(
+    s1: Dict[str, Any],
+    cand: Dict[str, Any],
+    blocker_rank: int = 1,
+    blocker_score: float = 0.0,
+    name_idf_dict: Optional[Dict[str, float]] = None,
+) -> List[float]:
+    """
+    Extracts high-dimensional pairwise feature vector (39 features).
+    """
+    base_feats = extract_pair_features(s1, cand)
+
+    n1_raw = s1.get("name_raw", "")
+    n2_raw = cand.get("name_raw", "")
+    n1_std = s1.get("name_std", "")
+    n2_std = cand.get("name_std", "")
+    n1_toks = s1.get("name_tokens", [])
+    n2_toks = cand.get("name_tokens", [])
+
+    a1_std = s1.get("addr_std", "")
+    a2_std = cand.get("addr_std", "")
+    a1_toks = s1.get("addr_tokens", [])
+    a2_toks = cand.get("addr_tokens", [])
+    d1 = s1.get("addr_digits", [])
+    d2 = cand.get("addr_digits", [])
+
+    # 1. Jaro-Winkler
+    jw = JaroWinkler.similarity(n1_std, n2_std) if (n1_std and n2_std) else 0.0
+
+    # 2. Character 3-gram and 4-gram cosine
+    char3_cos = char_ngram_cosine(n1_std, n2_std, n=3)
+    char4_cos = char_ngram_cosine(n1_std, n2_std, n=4)
+
+    # 3. Prefix agreement (3, 5, 8 characters)
+    p3 = 1.0 if (len(n1_std) >= 3 and len(n2_std) >= 3 and n1_std[:3] == n2_std[:3]) else 0.0
+    p5 = 1.0 if (len(n1_std) >= 5 and len(n2_std) >= 5 and n1_std[:5] == n2_std[:5]) else 0.0
+    p8 = 1.0 if (len(n1_std) >= 8 and len(n2_std) >= 8 and n1_std[:8] == n2_std[:8]) else 0.0
+
+    # 4. Token containment in both directions
+    inter_name = len(set(n1_toks).intersection(set(n2_toks)))
+    name_contain_s1 = inter_name / len(n1_toks) if n1_toks else 0.0
+    name_contain_s2 = inter_name / len(n2_toks) if n2_toks else 0.0
+
+    # 5. Address token containment in both directions
+    inter_addr = len(set(a1_toks).intersection(set(a2_toks)))
+    addr_contain_s1 = inter_addr / len(a1_toks) if a1_toks else 0.0
+    addr_contain_s2 = inter_addr / len(a2_toks) if a2_toks else 0.0
+
+    # 6. Postal & House numbers
+    pins1 = [d for d in d1 if len(d) in (5, 6)]
+    pins2 = [d for d in d2 if len(d) in (5, 6)]
+    if pins1 and pins2:
+        exact_postal = 1.0 if bool(set(pins1).intersection(set(pins2))) else 0.0
+    else:
+        exact_postal = 0.5
+
+    if d1 and d2:
+        leading_house = 1.0 if d1[0] == d2[0] else 0.0
+    else:
+        leading_house = 0.5
+
+    # 7. Name / Address Interaction Quadrants
+    name_sim = base_feats[0]  # name_ratio
+    addr_sim = base_feats[11] if len(base_feats) > 11 else 0.0  # addr_ratio
+    high_name_high_addr = 1.0 if (name_sim >= 0.75 and addr_sim >= 0.70) else 0.0
+    high_name_low_addr = 1.0 if (name_sim >= 0.75 and addr_sim < 0.40) else 0.0
+    low_name_high_addr = 1.0 if (name_sim < 0.40 and addr_sim >= 0.70) else 0.0
+    low_name_low_addr = 1.0 if (name_sim < 0.40 and addr_sim < 0.40) else 0.0
+
+    # 8. Blocker metadata
+    cand_score_norm = float(min(blocker_score / 30.0, 1.0))
+    cand_rank_norm = float(1.0 / blocker_rank) if blocker_rank > 0 else 1.0
+
+    return base_feats + [
+        jw,
+        char3_cos,
+        char4_cos,
+        p3,
+        p5,
+        p8,
+        name_contain_s1,
+        name_contain_s2,
+        addr_contain_s1,
+        addr_contain_s2,
+        exact_postal,
+        leading_house,
+        high_name_high_addr,
+        high_name_low_addr,
+        low_name_high_addr,
+        low_name_low_addr,
+        cand_score_norm,
+        cand_rank_norm,
+    ]
+
+

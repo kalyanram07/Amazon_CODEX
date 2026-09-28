@@ -1,0 +1,25 @@
+{
+  "investigation_summary": "Reconciliation of candidate recall measurements across validation pipeline and unconstrained full-corpus benchmarks.",
+  "measurements": [
+    {
+      "environment": "Training Pipeline Validation Split (train.py / evaluate_baseline_reproduction.py)",
+      "target_pool_size": "~400,000 targets per country (Needed GT matches for 115k S1 + 300,000 background pool)",
+      "validation_population": "14,999 holdout S1 entities",
+      "baseline_k25_candidate_recall": 0.8793,
+      "definition": "Percentage of validation S1 true matches retrieved in top-25 candidate sets when querying the training target pool.",
+      "notes": "Target pool is conditioned on training S1 entities plus a 300k background pool."
+    },
+    {
+      "environment": "Full-Scale Unconstrained Corpus Benchmark (experiment_blocking_sweep.py)",
+      "target_pool_size": "6,186,873 US target records and 4,133,346 India target records (All S2 + S3 records)",
+      "validation_population": "10,000 unconditioned S1 entities",
+      "baseline_k25_candidate_recall": 0.6306,
+      "soft_idf_k25_candidate_recall": 0.7932,
+      "soft_idf_k35_candidate_recall": 0.8077,
+      "soft_idf_k50_candidate_recall": 0.8196,
+      "definition": "Percentage of true matches captured when querying against the entire unconstrained 6.18M target pool.",
+      "notes": "The hard frequency pruning threshold of 2,500 represents only 0.04% of a 6.18M dataset, causing severe candidate drops on common industry words. Soft-IDF solves this by replacing binary pruning with continuous entropy weighting log(N / (df+1)), boosting recall by +16.26%."
+    }
+  ],
+  "conclusion": "The discrepancy is entirely explained by target pool size (400k sample vs 6.18M full corpus) and the aggressive 0.04% hard-prune threshold. Soft-IDF successfully eliminates the hard-prune drop on large corpora."
+}

@@ -1,0 +1,10 @@
+{
+  "macro_f05": 0.96129,
+  "macro_precision": 0.980039,
+  "macro_recall": 0.943264,
+  "candidate_recall": 0.0,
+  "singleton_accuracy": 0.93426,
+  "tau_singleton": 0.92,
+  "tau_match": 0.85,
+  "features_count": 41
+}

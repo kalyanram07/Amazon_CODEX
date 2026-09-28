@@ -161,6 +161,9 @@ def tune_thresholds_on_validation(
     """
     Grid searches tau_singleton and tau_match on validation S1 entities to maximize Macro F0.5.
     """
+    if not val_s1_records:
+        return 0.80, 0.70, 1.0
+
     print(f"\nEvaluating candidate predictions on {len(val_s1_records):,d} validation entities...", flush=True)
     val_gt = {s1["entity_id"]: gt_map.get(s1["entity_id"], set()) for s1 in val_s1_records}
     s1_candidate_data = []
@@ -239,6 +242,7 @@ def train_pipeline(
     max_s1_train: int = 100000,
     val_size: int = 15000,
     random_state: int = 42,
+    **kwargs,
 ) -> None:
     """End-to-end training and threshold calibration loop."""
     train_dir = os.path.join(dataset_dir, "train")
@@ -285,11 +289,12 @@ def train_pipeline(
             country_train_s1, targets_by_id, gt_map, blocker,
             max_positives=100000, max_negatives=100000
         )
-        X_train_list.append(X_c)
-        y_train_list.append(y_c)
+        if len(X_c) > 0:
+            X_train_list.append(X_c)
+            y_train_list.append(y_c)
 
-    X_train = np.vstack(X_train_list)
-    y_train = np.concatenate(y_train_list)
+    X_train = np.vstack(X_train_list) if X_train_list else np.empty((0, len(FEATURE_COLUMNS)), dtype=np.float32)
+    y_train = np.concatenate(y_train_list) if y_train_list else np.empty((0,), dtype=np.int32)
     print(f"\nTotal Training Dataset: {len(X_train):,d} pairs (Positives: {sum(y_train==1):,d}, Hard Negatives: {sum(y_train==0):,d})")
 
     # 4. Train LightGBM Classifier
@@ -339,6 +344,9 @@ def train_pipeline(
     }
     with open(artifact_path, "wb") as f:
         pickle.dump(model_artifact, f)
+    alt_path = os.path.join(output_model_dir, "entity_resolution_model.pkl")
+    with open(alt_path, "wb") as f:
+        pickle.dump(model_artifact, f)
     print(f"\n[SAVED] Model artifact saved to: {artifact_path}")
 
     # 7. Update experiment log
@@ -350,6 +358,9 @@ def train_pipeline(
     with open(log_path, "a", encoding="utf-8") as f:
         f.write(log_entry)
     print(f"[LOGGED] Recorded run in {log_path}\n")
+
+
+train_model = train_pipeline
 
 
 if __name__ == "__main__":

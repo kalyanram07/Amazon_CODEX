@@ -1,0 +1,13 @@
+{
+  "blocker": "CountrySoftIDFBlocker",
+  "top_k": 25,
+  "enable_char3": false,
+  "max_token_frequency": 3000,
+  "feature_set": "FEATURE_COLUMNS (23 pairwise string, token, digit & interaction features)",
+  "model_type": "LightGBM GBDT",
+  "n_estimators": 200,
+  "learning_rate": 0.08,
+  "num_leaves": 63,
+  "tau_singleton": 0.9,
+  "tau_match": 0.8
+}

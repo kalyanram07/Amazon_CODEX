@@ -1,0 +1,9 @@
+{
+  "tau_singleton": 0.92,
+  "tau_match": 0.88,
+  "min_margin": 0.0,
+  "macro_f05": 0.972137,
+  "macro_precision": 0.987211,
+  "macro_recall": 0.953355,
+  "singleton_accuracy": 0.944374
+}

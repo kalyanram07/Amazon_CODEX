@@ -1,0 +1,8 @@
+experiment_id,experiment_name,blocker_type,top_k,num_features,macro_f0.5,precision,recall,singleton_accuracy,candidate_recall,false_positives,false_negatives,avg_cands_per_s1,median_cands_per_s1,max_cands_per_s1,tau_singleton,tau_match,runtime_seconds
+Exp_A,"Baseline (Hard Prune, K=25, 23 Feats)",baseline,25,23,0.909289,0.953522,0.880277,0.886179,0.8793,2388,6612,24.99,25.0,25,0.8,0.7,130.43
+Exp_B,"Soft-IDF (K=25, 23 Feats)",soft_idf,25,23,0.922094,0.952778,0.909096,0.868757,0.912248,2489,4973,24.99,25.0,25,0.8,0.7,220.87
+Exp_C,"Soft-IDF (K=35, 23 Feats)",soft_idf,35,23,0.921551,0.945192,0.922594,0.859466,0.927785,3079,4196,34.98,35.0,35,0.8,0.7,185.33
+Exp_D,"Soft-IDF + Char3 (K=25, 23 Feats)",soft_idf_char3,25,23,0.920402,0.95348,0.905902,0.883856,0.909504,2483,5151,25.0,25.0,25,0.8,0.7,412.11
+Exp_E,"Soft-IDF + Char3 (K=35, 23 Feats)",soft_idf_char3,35,23,0.918969,0.944295,0.918817,0.86295,0.924403,3126,4412,35.0,35.0,35,0.8,0.7,372.45
+Exp_F,"Soft-IDF + Char3 (K=35, 30 Feats)",soft_idf_char3,35,30,0.057204,0.9998,0.057404,0.996516,0.924403,3,51748,35.0,35.0,35,0.8,0.7,340.98
+Exp_G,Soft-IDF + Char3 + 30 Feats + Hard Negatives,soft_idf_char3,35,30,0.057204,0.9998,0.057404,0.996516,0.924403,3,51748,35.0,35.0,35,0.8,0.7,392.69

@@ -1,16 +1,26 @@
 # Dataset and Large Data Files
 dataset/
 dataset/**
-output/*.tsv
+output/
+*.tsv
 *.zip
 *.tar.gz
+*.7z
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.ipynb_checkpoints
+.pytest_cache/
 
-# OS Files
+# OS and Editor Files
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+
+# Temporary Test Data
+mock_data/
+mock_models/
+mock_output/

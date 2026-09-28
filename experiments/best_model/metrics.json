@@ -1,0 +1,11 @@
+{
+  "model_name": "Soft-IDF Blocker (K=25) + LightGBM (23 Feats)",
+  "macro_f0.5": 0.931041,
+  "precision": 0.9679,
+  "recall": 0.903305,
+  "singleton_accuracy": 0.932636,
+  "tau_singleton": 0.9,
+  "tau_match": 0.8,
+  "total_validation_s1": 14999,
+  "error_entities_count": 4626
+}

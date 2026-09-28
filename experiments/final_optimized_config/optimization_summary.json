@@ -1,0 +1,46 @@
+{
+  "k_sweep": {
+    "25": {
+      "macro_f05": 0.971462,
+      "precision": 0.988962,
+      "recall": 0.947099,
+      "singleton_accuracy": 0.946903,
+      "best_tau_singleton": 0.92,
+      "best_tau_match": 0.9
+    },
+    "35": {
+      "macro_f05": 0.972564,
+      "precision": 0.988668,
+      "recall": 0.950666,
+      "singleton_accuracy": 0.944374,
+      "best_tau_singleton": 0.92,
+      "best_tau_match": 0.9
+    },
+    "50": {
+      "macro_f05": 0.973208,
+      "precision": 0.988307,
+      "recall": 0.953094,
+      "singleton_accuracy": 0.94311,
+      "best_tau_singleton": 0.92,
+      "best_tau_match": 0.9
+    }
+  },
+  "fine_grid_best": {
+    "tau_singleton": 0.96,
+    "tau_match": 0.9,
+    "macro_f05": 0.972829,
+    "macro_precision": 0.990035,
+    "macro_recall": 0.949866,
+    "singleton_accuracy": 0.96713
+  },
+  "source_specific_best": {
+    "tau_singleton": 0.9,
+    "tau_s2": 0.92,
+    "tau_s3": 0.8,
+    "macro_f05": 0.972781,
+    "macro_precision": 0.989176,
+    "macro_recall": 0.950147,
+    "singleton_accuracy": 0.944374
+  },
+  "total_elapsed_time": 158.14
+}
